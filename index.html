@@ -307,6 +307,53 @@ section,footer{overflow-x:clip}
 .leaf-l::after{background:linear-gradient(90deg,rgba(4,8,16,.25),rgba(4,8,16,.85))}
 .leaf-r::after{background:linear-gradient(270deg,rgba(4,8,16,.25),rgba(4,8,16,.85))}
 @media(max-width:820px){.leaf img{-webkit-mask-image:linear-gradient(#000 66%,transparent 100%);mask-image:linear-gradient(#000 66%,transparent 100%)}}
+
+/* ===== slide deck: one page at a time, pages swap with a fade ===== */
+html.deck-on,html.deck-on body{overflow:hidden;height:100%;overscroll-behavior:none}
+html.deck-on .nav{position:fixed;left:0;right:0}
+.deck{position:fixed;inset:0;z-index:5}
+.slide{position:absolute;inset:0;visibility:hidden;opacity:0;transition:opacity .6s ease,transform .7s cubic-bezier(.4,0,.2,1),filter .6s ease,visibility 0s linear .7s}
+.slide.on{visibility:visible;opacity:1;z-index:2;transition:opacity .8s ease .2s,transform .9s cubic-bezier(.2,.7,.2,1) .2s,filter .8s ease .2s,visibility 0s}
+.slide-inner{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;padding-top:calc(68px + env(safe-area-inset-top,0px));scrollbar-width:none}
+.slide-inner::-webkit-scrollbar{display:none}
+.slide-inner>section{margin-block:auto;width:100%;flex:none}
+.slide-inner>.ticker{flex:none}
+.slide-inner>footer{flex:none}
+.deck section{padding-block:clamp(28px,6vh,72px)}
+.deck .head{margin-bottom:clamp(20px,4vh,48px)}
+.slide-hero .slide-inner{padding-top:0;overflow:hidden}
+.slide-hero .hero{height:100%}
+.slide-hero .stick{position:relative;height:100%}
+#dust{z-index:6}
+.cursor{z-index:4}
+.dots{position:fixed;right:max(14px,env(safe-area-inset-right,0px));top:50%;transform:translateY(-50%);z-index:20;display:flex;flex-direction:column;gap:12px}
+.dots button{width:8px;height:8px;padding:0;border-radius:50%;border:1px solid var(--goldline);background:transparent;cursor:pointer;transition:background .3s,transform .3s,border-color .3s}
+.dots button.on{background:var(--gold2);border-color:var(--gold2);transform:scale(1.35);box-shadow:0 0 10px rgba(236,208,139,.7)}
+@media(max-width:820px){.dots{right:6px;gap:9px}.dots button{width:6px;height:6px}}
+@media(prefers-reduced-motion:reduce){.slide,.slide.on{transition:opacity .2s,visibility 0s}}
+
+/* compact pages so each fits one screen on laptops */
+.slide-hero .ticker{position:absolute;left:0;right:0;bottom:0;z-index:1;background:transparent;border-bottom:0;padding:14px 0 18px}
+@media(min-width:821px){
+  .deck h2{font-size:clamp(34px,4.4vw,62px)}
+  .deck .stats{margin-top:clamp(18px,3.5vh,40px)}
+  .deck .stat b{font-size:clamp(44px,6.4vw,84px)}
+  .deck .role{padding:clamp(20px,3vh,36px) clamp(22px,3vw,40px)}
+  .deck .role h3{margin:8px 0}
+  .deck .logo-box{aspect-ratio:16/8;margin-bottom:16px}
+  .deck .venture{padding-bottom:22px}
+  .deck .card{min-height:0;padding:22px 24px;gap:16px}
+  .deck .card::before{font-size:34px}
+  .deck .job{padding-block:clamp(12px,2.2vh,22px)}
+  .deck .job h3{font-size:clamp(22px,2.4vw,30px)}
+  .deck .job li{padding-block:2px;font-size:14px}
+  .deck .job::before{top:calc(clamp(12px,2.2vh,22px) + 8px)}
+  .deck .entry{padding:12px 0}
+  .deck .contact h2{font-size:clamp(46px,9vw,120px)}
+}
+
+.slide-hero .panel{padding-bottom:120px}
+.scroll.gone{opacity:0!important;pointer-events:none}
 </style>
 
 <nav class="nav"><div class="wrap">
@@ -337,7 +384,7 @@ section,footer{overflow-x:clip}
     <div class="chip"><b>Founder</b><span>Naraya Artha Consulting</span></div>
     <div class="chip"><b>Konsultan Pajak (BKP)</b><span>Berlisensi Kemenkeu</span></div>
   </div>
-  <button type="button" class="scroll" id="hint"><i></i><span id="hintTxt">Tutup pintu</span></button>
+  <button type="button" class="scroll" id="hint"><i></i><span id="hintTxt">Scroll untuk membuka</span></button>
 </div></header>
 
 <canvas id="dust" aria-hidden="true"></canvas>
@@ -454,10 +501,10 @@ section,footer{overflow-x:clip}
   else{
     var raf=0,last=0,target=0,hintTxt=document.getElementById('hintTxt'),stick=document.querySelector('.stick');
     function step(t){var dt=Math.max(.001,Math.min(.05,(t-last)/1000));last=t;dprog+=Math.sign(target-dprog)*Math.min(Math.abs(target-dprog),dt/1.8);frame();raf=dprog!==target?requestAnimationFrame(step):0}
-    function go(v){target=v;hintTxt.textContent=v?'Tutup pintu':'Buka pintu';hint.setAttribute('aria-pressed',v?'true':'false');if(!raf){last=performance.now();raf=requestAnimationFrame(step)}}
-    stick.addEventListener('click',function(e){if(e.target.closest('a'))return;go(target?0:1)});
+    function go(v){target=v;hintTxt.textContent=v?'Scroll untuk lanjut':'Scroll untuk membuka';hint.setAttribute('aria-pressed',v?'true':'false');hint.classList.toggle('gone',!!v);if(!raf){last=performance.now();raf=requestAnimationFrame(step)}}
+    stick.addEventListener('click',function(e){if(e.target.closest('a'))return;if(!target){window.__deck?__deck.go(1):go(1)}else if(e.target.closest('#hint')&&window.__deck){__deck.go(2)}});
+    window.__doors={open:function(){go(1)},close:function(){go(0)}};
     addEventListener('resize',frame);frame();
-    setTimeout(function(){go(1)},900);
   }
   var t=document.getElementById('track');t.innerHTML+=t.innerHTML;
   var els=[].slice.call(document.querySelectorAll('.pre'));
@@ -603,6 +650,112 @@ section,footer{overflow-x:clip}
       requestAnimationFrame(loop);
     })(0);
   }
+})();
+
+(function(){
+  var hero=document.getElementById('top');if(!hero||!window.__doors)return;
+  var root=document.documentElement,still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var secs=[hero].concat(['peran','usaha','keahlian','karier','kredensial','kontak'].map(function(id){return document.getElementById(id)}).filter(Boolean));
+  var deck=document.createElement('div');deck.className='deck';
+  var ticker=document.querySelector('.ticker'),footer=document.querySelector('footer');
+  var slides=secs.map(function(sec,i){
+    var s=document.createElement('div'),inner=document.createElement('div');
+    s.className='slide'+(i===0?' slide-hero on':'');inner.className='slide-inner';s.dataset.id=sec.id;
+    if(sec.style&&sec.style.background){inner.style.background=sec.style.background;sec.style.background='';sec.style.borderBlock='0'}
+    sec.parentNode.insertBefore(s,sec);
+    inner.appendChild(sec);
+    if(sec.id==='kontak'&&footer)inner.appendChild(footer);
+    s.appendChild(inner);deck.appendChild(s);return s;
+  });
+  document.body.appendChild(deck);root.classList.add('deck-on');
+  if(ticker)hero.querySelector('.stick').appendChild(ticker);
+  // side dots
+  var dots=document.createElement('div');dots.className='dots';
+  var names=['Beranda','Peran','Usaha','Keahlian','Karier','Kredensial','Kontak'];
+  slides.forEach(function(s,i){var b=document.createElement('button');b.type='button';b.setAttribute('aria-label',names[i]||s.dataset.id);b.addEventListener('click',function(){goStep(i===0?1:i+1)});dots.appendChild(b)});
+  document.body.appendChild(dots);
+  // steps: 0 = doors closed, 1 = doors open, 2.. = the other pages
+  var step=0,cur=0,lock=0,last=slides.length;
+  var prog=document.getElementById('prog'),topBtn=document.getElementById('top-btn'),links={};
+  [].forEach.call(document.querySelectorAll('.links a'),function(a){links[a.getAttribute('href').slice(1)]=a});
+  function inner(){return slides[cur].firstChild}
+  function replay(s){
+    var els=[].slice.call(s.querySelectorAll('.pre'));
+    els.forEach(function(e){e.classList.remove('in')});
+    void s.offsetWidth;
+    requestAnimationFrame(function(){els.forEach(function(e){e.classList.add('in')})});
+    [].forEach.call(s.querySelectorAll('[data-count]'),function(el){var to=+el.dataset.count,t0=performance.now();el.textContent='0';
+      (function f(t){var p=Math.min(1,(t-t0)/1400);el.textContent=Math.round(to*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(f)})(t0+300)});
+    var exp=s.querySelector('.exp');if(exp){var t0=performance.now();exp.style.setProperty('--p',0);
+      (function g(t){var p=Math.min(1,Math.max(0,(t-t0-400)/1800));exp.style.setProperty('--p',p*p*(3-2*p));if(p<1)requestAnimationFrame(g)})(t0)}
+  }
+  function show(i,dir){
+    if(i===cur)return;
+    var a=slides[cur],b=slides[i],off=still?0:46;
+    a.classList.remove('on');a.style.transform='translateY('+(dir>0?-off:off)+'px) scale(.98)';a.style.filter=still?'':'blur(8px)';
+    (function(el){setTimeout(function(){if(!el.classList.contains('on')){el.style.transform='';el.style.filter='';[].forEach.call(el.querySelectorAll('.pre'),function(e){e.classList.remove('in')})}},800)})(a);
+    b.style.transition='none';b.style.transform='translateY('+(dir>0?off:-off)+'px) scale(.98)';b.style.filter=still?'':'blur(8px)';
+    var bi=b.firstChild;bi.scrollTop=dir>0?0:bi.scrollHeight;
+    void b.offsetWidth;b.style.transition='';b.classList.add('on');b.style.transform='';b.style.filter='';
+    cur=i;replay(b);
+  }
+  function sync(){
+    var id=slides[cur].dataset.id;for(var k in links)links[k].classList.toggle('on',k===id);
+    [].forEach.call(dots.children,function(d,i){d.classList.toggle('on',i===cur)});
+    prog.style.transform='scaleX('+(step/(last))+')';topBtn.classList.toggle('show',step>=2);
+  }
+  function goStep(n){
+    n=Math.max(0,Math.min(last,n));if(n===step)return;
+    var dir=n>step?1:-1;
+    if(n<=1){if(cur!==0)show(0,dir);n===1?__doors.open():__doors.close()}
+    else{if(step<=1&&n>=2)__doors.open();show(n-1,dir)}
+    step=n;lock=Date.now()+(still?250:950);sync();
+  }
+  window.__deck={go:goStep,next:function(){goStep(step+1)},prev:function(){goStep(step-1)}};
+  function canScroll(el,dir){return dir>0?el.scrollTop+el.clientHeight<el.scrollHeight-2:el.scrollTop>1}
+  var lastWheel=0;
+  addEventListener('wheel',function(e){
+    var now=Date.now(),gap=now-lastWheel;lastWheel=now;
+    if(Math.abs(e.deltaY)<3||e.ctrlKey)return;
+    var dir=e.deltaY>0?1:-1;
+    if(canScroll(inner(),dir))return;
+    e.preventDefault();
+    if(gap<180||now<lock)return;
+    goStep(step+dir);
+  },{passive:false});
+  var y0=null,atTop=true,atBottom=true;
+  addEventListener('touchstart',function(e){var el=inner();y0=e.touches[0].clientY;atTop=!canScroll(el,-1);atBottom=!canScroll(el,1)},{passive:true});
+  addEventListener('touchend',function(e){if(y0==null)return;var dy=y0-e.changedTouches[0].clientY;y0=null;
+    if(Math.abs(dy)<45||Date.now()<lock)return;if(dy>0&&atBottom)goStep(step+1);else if(dy<0&&atTop)goStep(step-1)},{passive:true});
+  addEventListener('keydown',function(e){
+    if(/input|textarea|select/i.test(e.target.tagName))return;
+    var k=e.key,el=inner();
+    if((k==='ArrowDown'||k==='PageDown'||k===' ')&&!canScroll(el,1)){e.preventDefault();if(Date.now()>=lock)goStep(step+1)}
+    else if((k==='ArrowUp'||k==='PageUp')&&!canScroll(el,-1)){e.preventDefault();if(Date.now()>=lock)goStep(step-1)}
+    else if(k==='Home'){e.preventDefault();goStep(0)}else if(k==='End'){e.preventDefault();goStep(last)}
+  });
+  document.addEventListener('click',function(e){
+    var a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a)return;
+    var id=a.getAttribute('href').slice(1);
+    var idx=slides.findIndex?slides.findIndex(function(s){return s.dataset.id===id}):-1;
+    if(idx<0)return;e.preventDefault();goStep(idx===0?0:idx+1);
+  });
+  topBtn.addEventListener('click',function(){goStep(0)});
+  // the scroll observers fired for every page at load; reset so each page animates when it is shown
+  setTimeout(function(){slides.forEach(function(s,i){if(i!==cur)[].forEach.call(s.querySelectorAll('.pre'),function(e){e.classList.remove('in')})})},400);
+
+  // laptop: shrink a page that still does not fit, so it never needs scrolling
+  function fit(){
+    slides.forEach(function(s){var inn=s.firstChild;if(s===slides[0])return;
+      [].forEach.call(inn.children,function(c){c.style.zoom=''});
+      if(innerWidth<=820)return;
+      var need=inn.scrollHeight,have=inn.clientHeight;
+      if(need>have+1){var z=Math.max(.6,(have-calcPad(inn))/(need-calcPad(inn)));[].forEach.call(inn.children,function(c){c.style.zoom=z})}
+    });
+  }
+  function calcPad(el){return parseFloat(getComputedStyle(el).paddingTop)||0}
+  fit();addEventListener('resize',fit);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
+  sync();
 })();
 </script>
 
