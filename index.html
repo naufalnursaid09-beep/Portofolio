@@ -118,6 +118,29 @@ h1{font-family:var(--display);font-weight:400;font-size:clamp(44px,8vw,112px);li
 @keyframes nudge{50%{transform:scaleX(1.6);transform-origin:left}}
 @media(prefers-reduced-motion:reduce){.halo,.halo s,.photo,.nm h2 em,.chip,.nm h2,.skl li,.skl li::before,.scroll i{animation:none!important}.halo s{opacity:.8}}
 
+/* interactivity */
+.progress{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;height:2px;z-index:45;background:var(--grad);transform:scaleX(0);transform-origin:left;pointer-events:none}
+.links a{position:relative;transition:color .3s}
+.links a::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:1px;background:var(--gold);transform:scaleX(0);transition:transform .35s}
+.links a.on{color:var(--gold2)}
+.links a.on::after,.links a:hover::after{transform:scaleX(1)}
+.cursor{position:fixed;left:0;top:0;width:420px;height:420px;margin:-210px 0 0 -210px;border-radius:50%;pointer-events:none;z-index:1;background:radial-gradient(circle,rgba(212,176,98,.11),transparent 65%);opacity:0;transition:opacity .4s;will-change:transform}
+.cursor.on{opacity:1}
+.card,.role,.job,.venture{position:relative}
+.card::after,.role::after,.job::after,.venture::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .35s;background:radial-gradient(320px circle at var(--mx,50%) var(--my,50%),rgba(212,176,98,.16),transparent 70%)}
+.card:hover::after,.role:hover::after,.job:hover::after,.venture:hover::after{opacity:1}
+.card.last::after{display:none}
+.tilt{transform-style:preserve-3d}
+.entry{transition:padding-left .3s,border-color .3s}
+.entry:hover{padding-left:12px;border-color:var(--goldline)}
+.chips-skill{display:flex;flex-wrap:wrap;gap:8px}
+.top{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));z-index:35;width:46px;height:46px;border-radius:50%;border:1px solid var(--goldline);background:rgba(14,22,38,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:var(--gold2);display:grid;place-items:center;cursor:pointer;opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .3s,transform .3s,background .3s}
+.top.show{opacity:1;transform:none;pointer-events:auto}
+.top:hover{background:var(--gold);color:#14100a}
+.ticker:hover .track{animation-play-state:paused}
+.pill.solid,.pill.line{position:relative;will-change:transform}
+@media(prefers-reduced-motion:reduce){.cursor{display:none}.progress{transition:none}}
+
 /* ventures */
 .venture{border:1px solid var(--line);border-radius:24px;padding:14px 14px 30px;background:var(--card);transition:transform .4s,border-color .4s}
 .venture:hover{transform:translateY(-6px);border-color:var(--goldline)}
@@ -204,6 +227,8 @@ footer{padding:28px 20px;text-align:center;font-size:12px;color:var(--muted);bor
   <a href="#kontak" class="pill solid">Hubungi Saya</a>
 </div></nav>
 
+<div class="progress" id="prog"></div><div class="cursor" id="cursor" aria-hidden="true"></div>
+<button class="top" id="top-btn" type="button" aria-label="Kembali ke atas"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
 <header class="hero" id="top"><div class="stick">
   <div class="panel" id="panel"><div id="panelIn">
     <span class="tag">Tax &amp; Finance Professional</span>
@@ -239,9 +264,9 @@ footer{padding:28px 20px;text-align:center;font-size:12px;color:var(--muted);bor
     <div class="role"><small>Founder</small><h3>Pemilik Usaha</h3><p>Memimpin Naraya Artha Consulting sejak Mei 2026 dan membangun aplikasi accounting Aksara.</p></div>
   </div>
   <div class="stats">
-    <div class="stat rv pre"><b class="g">4</b><span>Lisensi &amp; sertifikasi profesi</span></div>
-    <div class="stat rv pre"><b class="g">5</b><span>Perusahaan &amp; posisi</span></div>
-    <div class="stat rv pre"><b class="g">2</b><span>Keanggotaan asosiasi</span></div>
+    <div class="stat rv pre"><b class="g" data-count="4">4</b><span>Lisensi &amp; sertifikasi profesi</span></div>
+    <div class="stat rv pre"><b class="g" data-count="5">5</b><span>Perusahaan &amp; posisi</span></div>
+    <div class="stat rv pre"><b class="g" data-count="2">2</b><span>Keanggotaan asosiasi</span></div>
     <div class="stat rv pre"><b class="g">S1</b><span>Akuntansi, sedang ditempuh</span></div>
   </div>
 </div></section>
@@ -339,6 +364,40 @@ footer{padding:28px 20px;text-align:center;font-size:12px;color:var(--muted);bor
     if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){b.textContent='Tersalin'},sel)}else sel();
     setTimeout(function(){b.textContent='Salin'},1800);
   });
+  // interactivity
+  var fine=matchMedia('(hover: hover) and (pointer: fine)').matches;
+  var prog=document.getElementById('prog'),topBtn=document.getElementById('top-btn'),cur=document.getElementById('cursor');
+  function onScr(){var h=document.documentElement.scrollHeight-innerHeight;prog.style.transform='scaleX('+(h>0?Math.min(1,scrollY/h):0)+')';topBtn.classList.toggle('show',scrollY>innerHeight*1.2)}
+  addEventListener('scroll',onScr,{passive:true});onScr();
+  topBtn.addEventListener('click',function(){scrollTo({top:0,behavior:still?'auto':'smooth'})});
+  // active nav
+  var links={};[].forEach.call(document.querySelectorAll('.links a'),function(a){links[a.getAttribute('href').slice(1)]=a});
+  var spy=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){for(var k in links)links[k].classList.remove('on');var a=links[e.target.id];if(a)a.classList.add('on')}})},{rootMargin:'-45% 0px -50% 0px'});
+  ['peran','usaha','keahlian','karier','kredensial','kontak'].forEach(function(id){var s=document.getElementById(id);if(s)spy.observe(s)});
+  // counters
+  if(!still&&'IntersectionObserver' in window){
+    var co=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;co.unobserve(e.target);var el=e.target,to=+el.dataset.count,t0=performance.now();
+      (function step(t){var p=Math.min(1,(t-t0)/1400),v=Math.round(to*(1-Math.pow(1-p,3)));el.textContent=v;if(p<1)requestAnimationFrame(step)})(t0)})},{threshold:.6});
+    [].forEach.call(document.querySelectorAll('[data-count]'),function(el){co.observe(el)});
+  }
+  if(fine&&!still){
+    // spotlight + tilt
+    [].forEach.call(document.querySelectorAll('.card,.role,.job,.venture'),function(el){
+      el.addEventListener('pointermove',function(ev){var r=el.getBoundingClientRect(),x=ev.clientX-r.left,y=ev.clientY-r.top;el.style.setProperty('--mx',x+'px');el.style.setProperty('--my',y+'px');
+        if(el.classList.contains('venture')||el.classList.contains('card')){var rx=((y/r.height)-.5)*-6,ry=((x/r.width)-.5)*6;el.style.transition='transform .12s';el.style.transitionDelay='0s';el.style.transform='perspective(900px) rotateX('+rx+'deg) rotateY('+ry+'deg) translateY(-4px)'}});
+      el.addEventListener('pointerleave',function(){el.style.transition='';el.style.transform=''});
+    });
+    // magnetic buttons
+    [].forEach.call(document.querySelectorAll('.pill'),function(b){
+      b.addEventListener('pointermove',function(ev){var r=b.getBoundingClientRect();b.style.transform='translate('+((ev.clientX-r.left-r.width/2)*.18)+'px,'+((ev.clientY-r.top-r.height/2)*.28)+'px)'});
+      b.addEventListener('pointerleave',function(){b.style.transform=''});
+    });
+    // cursor glow
+    var tx=0,ty=0,cx=0,cy=0;
+    addEventListener('pointermove',function(ev){tx=ev.clientX;ty=ev.clientY;cur.classList.add('on')},{passive:true});
+    document.addEventListener('pointerleave',function(){cur.classList.remove('on')});
+    (function loop(){cx+=(tx-cx)*.14;cy+=(ty-cy)*.14;cur.style.transform='translate('+cx+'px,'+cy+'px)';requestAnimationFrame(loop)})();
+  }
   document.getElementById('yr').textContent=new Date().getFullYear();
 })();
 </script>
