@@ -276,6 +276,12 @@ footer{padding:28px 20px;text-align:center;font-size:12px;color:var(--muted);bor
 
 section,footer{overflow-x:clip}
 @media(max-width:820px){.pre.right{transform:translateX(22px)}.pre.left{transform:translateX(-22px)}.photo{height:min(38svh,100vw)}}
+
+/* doors: halves swing open backwards on outer hinges */
+.photo{perspective:1100px;perspective-origin:50% 45%}
+.photo .l{transform-origin:0 50%}
+.photo .r{transform-origin:100% 50%}
+.photo img{backface-visibility:hidden;-webkit-backface-visibility:hidden}
 </style>
 
 <nav class="nav"><div class="wrap">
@@ -398,11 +404,12 @@ section,footer{overflow-x:clip}
   var still=matchMedia('(prefers-reduced-motion: reduce)').matches;
   function frame(){
     var max=hero.offsetHeight-innerHeight,p=cl(scrollY/max),o=ease(cl(p/0.85));
-    var d=o*Math.max(innerWidth*0.55,photo.offsetWidth*1.1);
-    imgs[0].style.transform='translateX('+(-d)+'px)';imgs[1].style.transform='translateX('+d+'px)';
+    var ang=o*88,fd=1-cl((o-.8)/.2),sh='brightness('+(1-.6*o).toFixed(3)+')';
+    imgs[0].style.transform='rotateY('+ang+'deg)';imgs[1].style.transform='rotateY('+(-ang)+'deg)';
+    imgs[0].style.opacity=imgs[1].style.opacity=fd;imgs[0].style.filter=imgs[1].style.filter=sh;
     seam.style.opacity=cl(o*5)*(1-cl((o-0.8)/0.2));
     panel.style.clipPath='inset(0 '+(1-o)*50+'%)';
-    var t=ease(cl(o*1.8));pin.style.opacity=t;pin.style.transform='translateY('+(1-t)*22+'px)';
+    var t=ease(cl((o-.2)*1.7));pin.style.opacity=t;pin.style.transform='translateY('+(1-t)*22+'px)';
     halo.style.opacity=1-cl(p/0.5);var fo=1-cl(p/0.3);nm.style.opacity=fo;bd.style.opacity=fo;nm.style.transform='translateX('+(-o*60)+'px)';bd.style.transform='translateX('+(o*60)+'px)';
     hint.style.opacity=1-cl(p/0.08);
   }
