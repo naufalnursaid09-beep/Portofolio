@@ -92,6 +92,32 @@ h1{font-family:var(--display);font-weight:400;font-size:clamp(44px,8vw,112px);li
 .scroll{position:absolute;bottom:max(22px,env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);z-index:4;display:flex;align-items:center;gap:12px;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
 .scroll i{width:44px;height:1px;background:var(--gold)}
 
+/* idle motion for the front page */
+.halo{animation:breathe 6s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:translate(-50%,-46%) scale(1)}50%{transform:translate(-50%,-46%) scale(1.09)}}
+.halo s{position:absolute;width:5px;height:5px;margin:-2.5px;background:var(--gold2);border-radius:50%;box-shadow:0 0 10px 2px rgba(236,208,139,.8);opacity:0;transform:scale(.3);animation:twinkle var(--t) ease-in-out var(--d) infinite}
+.halo s:nth-child(3n){width:3px;height:3px;margin:-1.5px}
+@keyframes twinkle{0%,100%{opacity:0;transform:scale(.3)}50%{opacity:1;transform:scale(var(--z))}}
+.photo{animation:float 7s ease-in-out infinite}
+@keyframes float{0%,100%{translate:0 0}50%{translate:0 -8px}}
+.nm h2 em{background:linear-gradient(110deg,#9c7a30 0%,#d4b062 28%,#fff3c4 46%,#d4b062 64%,#9c7a30 100%);background-size:240% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sheen 5s linear infinite}
+@keyframes sheen{from{background-position:120% 0}to{background-position:-120% 0}}
+.chip{animation:rise .9s cubic-bezier(.2,.7,.2,1) both,glow 4.5s ease-in-out infinite}
+.chip:nth-child(1){animation-delay:.2s,1.2s}.chip:nth-child(2){animation-delay:.4s,2s}.chip:nth-child(3){animation-delay:.6s,2.8s}.chip:nth-child(4){animation-delay:.8s,3.6s}
+@keyframes rise{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 rgba(212,176,98,0)}50%{box-shadow:0 0 22px rgba(212,176,98,.28)}}
+.nm h2,.skl li{animation:rise .9s cubic-bezier(.2,.7,.2,1) both}
+.nm h2{animation-name:riseL}
+@keyframes riseL{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:none}}
+.skl li{animation-name:riseL}
+.skl li:nth-child(1){animation-delay:.3s}.skl li:nth-child(2){animation-delay:.45s}.skl li:nth-child(3){animation-delay:.6s}.skl li:nth-child(4){animation-delay:.75s}
+.skl li::before{transform-origin:left;animation:sweep 3.4s ease-in-out infinite}
+.skl li:nth-child(2)::before{animation-delay:.4s}.skl li:nth-child(3)::before{animation-delay:.8s}.skl li:nth-child(4)::before{animation-delay:1.2s}
+@keyframes sweep{0%,100%{transform:scaleX(.35);opacity:.5}50%{transform:scaleX(1.5);opacity:1}}
+.scroll i{animation:nudge 2s ease-in-out infinite}
+@keyframes nudge{50%{transform:scaleX(1.6);transform-origin:left}}
+@media(prefers-reduced-motion:reduce){.halo,.halo s,.photo,.nm h2 em,.chip,.nm h2,.skl li,.skl li::before,.scroll i{animation:none!important}.halo s{opacity:.8}}
+
 /* ventures */
 .venture{border:1px solid var(--line);border-radius:24px;padding:14px 14px 30px;background:var(--card);transition:transform .4s,border-color .4s}
 .venture:hover{transform:translateY(-6px);border-color:var(--goldline)}
@@ -185,7 +211,7 @@ footer{padding:28px 20px;text-align:center;font-size:12px;color:var(--muted);bor
     <p class="sub">Saya Naufal Nursaid, konsultan pajak berlisensi dan FAT Supervisor yang membantu perusahaan patuh, rapi, dan siap mengambil keputusan.</p>
     <div class="cta"><a href="#kontak" class="pill solid">Bekerja Sama</a><a href="#peran" class="pill line">Lihat Profil</a></div>
   </div></div>
-  <div class="halo" id="halo"></div>
+  <div class="halo" id="halo"><s style="left:47%;top:25%;--d:2.0s;--t:2.5s;--z:1.3"></s><s style="left:18%;top:52%;--d:2.9s;--t:4.6s;--z:0.8"></s><s style="left:17%;top:61%;--d:2.1s;--t:3.0s;--z:1.0"></s><s style="left:13%;top:78%;--d:0.6s;--t:2.9s;--z:1.1"></s><s style="left:13%;top:79%;--d:2.9s;--t:2.5s;--z:0.8"></s><s style="left:77%;top:23%;--d:1.4s;--t:2.7s;--z:0.7"></s><s style="left:45%;top:77%;--d:4.1s;--t:2.8s;--z:1.1"></s><s style="left:87%;top:30%;--d:1.9s;--t:3.7s;--z:0.7"></s><s style="left:13%;top:85%;--d:1.0s;--t:4.0s;--z:0.9"></s><s style="left:46%;top:65%;--d:2.9s;--t:3.5s;--z:0.8"></s><s style="left:29%;top:37%;--d:0.4s;--t:3.1s;--z:1.0"></s><s style="left:49%;top:63%;--d:1.4s;--t:4.8s;--z:0.7"></s><s style="left:59%;top:27%;--d:3.8s;--t:2.8s;--z:1.0"></s><s style="left:11%;top:91%;--d:0.4s;--t:3.7s;--z:1.2"></s><s style="left:46%;top:49%;--d:3.5s;--t:3.8s;--z:1.1"></s><s style="left:64%;top:14%;--d:4.2s;--t:4.7s;--z:1.0"></s><s style="left:91%;top:14%;--d:0.3s;--t:4.1s;--z:1.1"></s><s style="left:93%;top:63%;--d:1.4s;--t:3.3s;--z:1.1"></s><s style="left:8%;top:65%;--d:1.8s;--t:3.9s;--z:1.0"></s><s style="left:33%;top:42%;--d:0.6s;--t:3.0s;--z:0.9"></s><s style="left:69%;top:16%;--d:0.8s;--t:3.4s;--z:0.8"></s><s style="left:23%;top:61%;--d:4.3s;--t:3.1s;--z:0.9"></s></div>
   <div class="seam" id="seam"></div>
   <div class="nm" id="nm"><h2>Naufal <em class="g">Nursaid</em></h2><ul class="skl" aria-label="Bidang keahlian"><li>Tax</li><li>Finance</li><li>Accounting</li><li>AI Enthusiast</li></ul></div>
   <div class="photo" id="photo">
